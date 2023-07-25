@@ -19,4 +19,9 @@ public class IndexController {
         model.addAttribute("msg","My Web");
         return "index";
     }
+    
+    @RequestMapping("/home")
+    public String home(){
+        return "home";
+    }
 }

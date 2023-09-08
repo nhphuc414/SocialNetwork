@@ -9,7 +9,6 @@ import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -34,7 +33,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Reaction.findById", query = "SELECT r FROM Reaction r WHERE r.id = :id"),
     @NamedQuery(name = "Reaction.findByReactionType", query = "SELECT r FROM Reaction r WHERE r.reactionType = :reactionType"),
     @NamedQuery(name = "Reaction.findByCreatedDate", query = "SELECT r FROM Reaction r WHERE r.createdDate = :createdDate"),
-    @NamedQuery(name = "Reaction.findByUpdatedDate", query = "SELECT r FROM Reaction r WHERE r.updatedDate = :updatedDate")})
+    @NamedQuery(name = "Reaction.findByUpdatedDate", query = "SELECT r FROM Reaction r WHERE r.updatedDate = :updatedDate"),
+    @NamedQuery(name = "Reaction.findByStatus", query = "SELECT r FROM Reaction r WHERE r.status = :status")})
 public class Reaction implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -43,7 +43,9 @@ public class Reaction implements Serializable {
     @NotNull
     @Column(name = "id")
     private Integer id;
-    @Size(max = 45)
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 4)
     @Column(name = "reaction_type")
     private String reactionType;
     @Basic(optional = false)
@@ -54,14 +56,16 @@ public class Reaction implements Serializable {
     @Column(name = "updated_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
+    @Column(name = "status")
+    private Short status;
     @JoinColumn(name = "comment_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Comment commentId;
     @JoinColumn(name = "post_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Post postId;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private User userId;
 
     public Reaction() {
@@ -71,8 +75,9 @@ public class Reaction implements Serializable {
         this.id = id;
     }
 
-    public Reaction(Integer id, Date createdDate) {
+    public Reaction(Integer id, String reactionType, Date createdDate) {
         this.id = id;
+        this.reactionType = reactionType;
         this.createdDate = createdDate;
     }
 
@@ -106,6 +111,14 @@ public class Reaction implements Serializable {
 
     public void setUpdatedDate(Date updatedDate) {
         this.updatedDate = updatedDate;
+    }
+
+    public Short getStatus() {
+        return status;
+    }
+
+    public void setStatus(Short status) {
+        this.status = status;
     }
 
     public Comment getCommentId() {

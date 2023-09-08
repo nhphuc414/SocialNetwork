@@ -10,6 +10,7 @@
     <class>com.nhp.pojo.GroupRole</class>
     <class>com.nhp.pojo.Comment</class>
     <class>com.nhp.pojo.Post</class>
+    <class>com.nhp.pojo.IdentityUser</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/socialnetwork?zeroDateTimeBehavior=CONVERT_TO_NULL"/>

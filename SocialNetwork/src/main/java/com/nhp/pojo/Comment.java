@@ -5,12 +5,11 @@
 package com.nhp.pojo;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -36,10 +35,10 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Comment.findAll", query = "SELECT c FROM Comment c"),
     @NamedQuery(name = "Comment.findById", query = "SELECT c FROM Comment c WHERE c.id = :id"),
     @NamedQuery(name = "Comment.findByContent", query = "SELECT c FROM Comment c WHERE c.content = :content"),
-    @NamedQuery(name = "Comment.findByImage", query = "SELECT c FROM Comment c WHERE c.image = :image"),
+    @NamedQuery(name = "Comment.findByPicture", query = "SELECT c FROM Comment c WHERE c.picture = :picture"),
     @NamedQuery(name = "Comment.findByCreatedDate", query = "SELECT c FROM Comment c WHERE c.createdDate = :createdDate"),
     @NamedQuery(name = "Comment.findByUpdatedDate", query = "SELECT c FROM Comment c WHERE c.updatedDate = :updatedDate"),
-    @NamedQuery(name = "Comment.findByActive", query = "SELECT c FROM Comment c WHERE c.active = :active")})
+    @NamedQuery(name = "Comment.findByStatus", query = "SELECT c FROM Comment c WHERE c.status = :status")})
 public class Comment implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -53,9 +52,9 @@ public class Comment implements Serializable {
     @Size(min = 1, max = 255)
     @Column(name = "content")
     private String content;
-    @Size(max = 255)
-    @Column(name = "image")
-    private String image;
+    @Size(max = 100)
+    @Column(name = "picture")
+    private String picture;
     @Basic(optional = false)
     @NotNull
     @Column(name = "created_date")
@@ -64,20 +63,20 @@ public class Comment implements Serializable {
     @Column(name = "updated_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
-    @Column(name = "active")
-    private Short active;
-    @OneToMany(mappedBy = "commentId", fetch = FetchType.LAZY)
-    private Set<Reaction> reactionSet;
-    @OneToMany(mappedBy = "commentParentId", fetch = FetchType.LAZY)
-    private Set<Comment> commentSet;
-    @JoinColumn(name = "comment_parent_id", referencedColumnName = "id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Comment commentParentId;
+    @Column(name = "status")
+    private Short status;
+    @OneToMany(mappedBy = "commentId")
+    private Collection<Reaction> reactionCollection;
+    @OneToMany(mappedBy = "parentId")
+    private Collection<Comment> commentCollection;
+    @JoinColumn(name = "parent_id", referencedColumnName = "id")
+    @ManyToOne
+    private Comment parentId;
     @JoinColumn(name = "post_id", referencedColumnName = "id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Post postId;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private User userId;
 
     public Comment() {
@@ -109,12 +108,12 @@ public class Comment implements Serializable {
         this.content = content;
     }
 
-    public String getImage() {
-        return image;
+    public String getPicture() {
+        return picture;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setPicture(String picture) {
+        this.picture = picture;
     }
 
     public Date getCreatedDate() {
@@ -133,38 +132,38 @@ public class Comment implements Serializable {
         this.updatedDate = updatedDate;
     }
 
-    public Short getActive() {
-        return active;
+    public Short getStatus() {
+        return status;
     }
 
-    public void setActive(Short active) {
-        this.active = active;
-    }
-
-    @XmlTransient
-    public Set<Reaction> getReactionSet() {
-        return reactionSet;
-    }
-
-    public void setReactionSet(Set<Reaction> reactionSet) {
-        this.reactionSet = reactionSet;
+    public void setStatus(Short status) {
+        this.status = status;
     }
 
     @XmlTransient
-    public Set<Comment> getCommentSet() {
-        return commentSet;
+    public Collection<Reaction> getReactionCollection() {
+        return reactionCollection;
     }
 
-    public void setCommentSet(Set<Comment> commentSet) {
-        this.commentSet = commentSet;
+    public void setReactionCollection(Collection<Reaction> reactionCollection) {
+        this.reactionCollection = reactionCollection;
     }
 
-    public Comment getCommentParentId() {
-        return commentParentId;
+    @XmlTransient
+    public Collection<Comment> getCommentCollection() {
+        return commentCollection;
     }
 
-    public void setCommentParentId(Comment commentParentId) {
-        this.commentParentId = commentParentId;
+    public void setCommentCollection(Collection<Comment> commentCollection) {
+        this.commentCollection = commentCollection;
+    }
+
+    public Comment getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Comment parentId) {
+        this.parentId = parentId;
     }
 
     public Post getPostId() {

@@ -5,13 +5,12 @@
 package com.nhp.pojo;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -40,7 +39,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Post.findByPicture", query = "SELECT p FROM Post p WHERE p.picture = :picture"),
     @NamedQuery(name = "Post.findByCreatedDate", query = "SELECT p FROM Post p WHERE p.createdDate = :createdDate"),
     @NamedQuery(name = "Post.findByUpdatedDate", query = "SELECT p FROM Post p WHERE p.updatedDate = :updatedDate"),
-    @NamedQuery(name = "Post.findByActive", query = "SELECT p FROM Post p WHERE p.active = :active")})
+    @NamedQuery(name = "Post.findByStatus", query = "SELECT p FROM Post p WHERE p.status = :status")})
 public class Post implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -65,17 +64,16 @@ public class Post implements Serializable {
     @Column(name = "updated_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedDate;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "active")
-    private short active;
-    @OneToMany(mappedBy = "postId", fetch = FetchType.LAZY)
-    private Set<Reaction> reactionSet;
+    @Size(max = 8)
+    @Column(name = "status")
+    private String status;
+    @OneToMany(mappedBy = "postId")
+    private Collection<Reaction> reactionCollection;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private User userId;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "postId", fetch = FetchType.LAZY)
-    private Set<Comment> commentSet;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "postId")
+    private Collection<Comment> commentCollection;
 
     public Post() {
     }
@@ -84,11 +82,10 @@ public class Post implements Serializable {
         this.id = id;
     }
 
-    public Post(Integer id, String content, Date createdDate, short active) {
+    public Post(Integer id, String content, Date createdDate) {
         this.id = id;
         this.content = content;
         this.createdDate = createdDate;
-        this.active = active;
     }
 
     public Integer getId() {
@@ -131,21 +128,21 @@ public class Post implements Serializable {
         this.updatedDate = updatedDate;
     }
 
-    public short getActive() {
-        return active;
+    public String getStatus() {
+        return status;
     }
 
-    public void setActive(short active) {
-        this.active = active;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @XmlTransient
-    public Set<Reaction> getReactionSet() {
-        return reactionSet;
+    public Collection<Reaction> getReactionCollection() {
+        return reactionCollection;
     }
 
-    public void setReactionSet(Set<Reaction> reactionSet) {
-        this.reactionSet = reactionSet;
+    public void setReactionCollection(Collection<Reaction> reactionCollection) {
+        this.reactionCollection = reactionCollection;
     }
 
     public User getUserId() {
@@ -157,12 +154,12 @@ public class Post implements Serializable {
     }
 
     @XmlTransient
-    public Set<Comment> getCommentSet() {
-        return commentSet;
+    public Collection<Comment> getCommentCollection() {
+        return commentCollection;
     }
 
-    public void setCommentSet(Set<Comment> commentSet) {
-        this.commentSet = commentSet;
+    public void setCommentCollection(Collection<Comment> commentCollection) {
+        this.commentCollection = commentCollection;
     }
 
     @Override

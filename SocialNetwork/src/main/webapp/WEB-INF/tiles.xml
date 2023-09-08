@@ -5,6 +5,9 @@
     <definition name="baseLayout"
                 template="/WEB-INF/layout/base.jsp">
         <put-attribute name="title" value="" />
+        <put-attribute name="page" value="" />
+        <put-attribute name="side"
+                       value="/WEB-INF/layout/side.jsp" />
         <put-attribute name="header"
                        value="/WEB-INF/layout/header.jsp" />
         <put-attribute name="content" value="" />
@@ -16,9 +19,20 @@
         <put-attribute name="content"
                        value="/WEB-INF/pages/index.jsp" />
     </definition>
-    <definition name="home" extends="baseLayout">
-        <put-attribute name="title" value="Home"/>
+<!--    <definition name="users" extends="baseLayout">
+        <put-attribute name="title" value="Users"/>
         <put-attribute name="content"
-                       value="/WEB-INF/pages/home.jsp" />
+                       value="/WEB-INF/pages/users.jsp" />
+    </definition>-->
+    <definition name="login" extends="baseLayout">
+        <put-attribute name="title" value="Login"/>
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/login.jsp" />
+        <put-attribute name="side"
+                       value="" />
+        <put-attribute name="header"
+                       value="/WEB-INF/layout/header.jsp" />
+        <put-attribute name="footer"
+                       value="/WEB-INF/layout/footer.jsp" />
     </definition>
 </tiles-definitions>

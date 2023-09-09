@@ -1,30 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+
+import { createContext, useReducer } from "react";
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
-import Home from './components/Home';
-import Login from './components/Login';
-import Register from './components/Register';
-import Profile from './components/Profile';
-import Setting from './components/Setting';
-import Footer from './layout/Footer';
-import Header from './layout/Header';
+import MyUserReducer from './reducers/MyUserReducer';
+import cookie  from 'react-cookies';
+import Home from "./pages/home/Home";
+import Login from "./pages/login/Login";
+import Register from "./pages/register/Register";
+import Profile from "./pages/profile/Profile";
+
+export const MyUserContext = createContext();
+export const MyCartContext = createContext();
 
 const App = () => {
+  const [user, dispatch] = useReducer(MyUserReducer, cookie.load("user") || null);
   return (
+    <MyUserContext.Provider value={[user, dispatch]}>
     <BrowserRouter>
-        <Header />
-        <Container>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/setting" element={<Setting />} />
+            <Route path="/" element={<Home/>} />
+            <Route path="/login" element={<Login/>} />
+            <Route path="/register" element={<Register/>} />
+            <Route path="/profile" element={<Profile/>} />
           </Routes>
-        </Container>
-        <Footer />
       </BrowserRouter>
+    </MyUserContext.Provider>
   );
 }
 

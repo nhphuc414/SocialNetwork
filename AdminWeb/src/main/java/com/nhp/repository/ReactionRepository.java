@@ -4,15 +4,10 @@
  */
 package com.nhp.repository;
 
-import com.nhp.pojo.Post;
-import java.util.List;
-
 /**
  *
  * @author ad
  */
-public interface PostRepository {
-    List<Post> getPublicPosts();
-    List<Post> getUserPosts(int id);
-    Post addPost(Post post);
+public interface ReactionRepository {
+    long countReactionsByPostId(int postId);
 }

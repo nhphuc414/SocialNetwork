@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author ad
  */
-@Service
+@Service("userDetailsService")
 public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository userRepository;
@@ -78,19 +78,7 @@ public class UserServiceImpl implements UserService{
     } else {
         throw new UsernameNotFoundException("User not found or inactive");
     }
-        
     }
-
-    @Override
-    public long countTeachers() {
-        return this.userRepository.countTeachers();
-    }
-
-    @Override
-    public long countExpire() {
-        return this.userRepository.countExpire();
-            }
-
     @Override
     public User getUserByUsername(String username) {
         return this.userRepository.getUserByUsername(username);
@@ -132,5 +120,19 @@ public class UserServiceImpl implements UserService{
         }
         return this.userRepository.addUser(u,params.get("identity"));
     }
-    
+
+    @Override
+    public long countUsers(Map<String, String> params) {
+        return this.userRepository.countUsers(params);
+    }
+
+    @Override
+    public boolean acceptUser(int id) {
+        return this.userRepository.acceptUser(id);
+    }
+
+    @Override
+    public boolean deniedUser(int id) {
+        return this.userRepository.deniedUser(id);
+    }
 }

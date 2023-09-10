@@ -1,6 +1,8 @@
+import { MyUserContext } from "../../App";
 import "./rightbar.css";
-
+import { useContext } from "react";
 const Rightbar = (profile) => {
+  const [user,] = useContext(MyUserContext);
   const HomeRightbar = () => {
     return (
       <>
@@ -16,19 +18,10 @@ const Rightbar = (profile) => {
   const ProfileRightbar = () => {
     return (
       <>
-        <h4 className="rightbarTitle">User information</h4>
+        <h4 className="rightbarTitle">{user.displayName}</h4>
         <div className="rightbarInfo">
           <div className="rightbarInfoItem">
-            <span className="rightbarInfoKey">City:</span>
-            <span className="rightbarInfoValue">New York</span>
-          </div>
-          <div className="rightbarInfoItem">
-            <span className="rightbarInfoKey">From:</span>
-            <span className="rightbarInfoValue">Madrid</span>
-          </div>
-          <div className="rightbarInfoItem">
-            <span className="rightbarInfoKey">Relationship:</span>
-            <span className="rightbarInfoValue">Single</span>
+            <span className="rightbarInfoKey">Email: {user.email}</span>
           </div>
         </div>
       </>

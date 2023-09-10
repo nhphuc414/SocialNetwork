@@ -16,6 +16,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import static jdk.nashorn.internal.objects.NativeError.printStackTrace;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,15 @@ public class UserRepositoryImpl implements UserRepository {
                 query.setFirstResult((p - 1) * pageSize);
             }
         }
-        return query.getResultList();
+        List<User> users = query.getResultList();
+        if ("REQUESTING".equals(params.get("role"))) {
+            for (User user : users) {
+                query = session.createQuery("SELECT identity FROM Identity WHERE userId.id=:id");
+                query.setParameter("id", user.getId());
+                user.setIdentity(query.getSingleResult().toString());
+            }
+        }
+        return users;
     }
 
     @Override
@@ -117,33 +126,23 @@ public class UserRepositoryImpl implements UserRepository {
         Session s = this.factory.getObject().getCurrentSession();
         Query q = s.createQuery("FROM User WHERE username=:un");
         q.setParameter("un", username);
-        return (User) q.getSingleResult();
-    }
-
-    @Override
-    public long countTeachers() {
-        Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("SELECT Count(*) FROM User WHERE role='ROLE_TEACHER'");
-        return Long.parseLong(q.getSingleResult().toString());
-    }
-
-    @Override
-    public long countExpire() {
-        Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("SELECT Count(*) FROM User WHERE status =:st AND role='ROLE_TEACHER'");
-        q.setParameter("st", "EXPIRE");
-        return Long.parseLong(q.getSingleResult().toString());
+        List<User> users = q.getResultList();
+        if (users.isEmpty()) {
+            return null;
+        } else {
+            return users.get(0);
+        }
     }
 
     @Override
     public String authUser(String username, String password) {
-        User  u = this.getUserByUsername(username);
-        if (u.getId()==null){
+        User u = this.getUserByUsername(username);
+        if (u == null) {
             return "USERNAME NOT FOUND";
         }
-        if ("ROLE_TEACHER".equals(u.getRole())&& this.passEncoder.matches("ou@123", u.getPassword())){
+        if ("ROLE_TEACHER".equals(u.getRole()) && this.passEncoder.matches("ou@123", u.getPassword())) {
             Date now = new Date();
-            Date d = u.getUpdatedDate()==null?u.getCreatedDate():u.getUpdatedDate();
+            Date d = u.getUpdatedDate() == null ? u.getCreatedDate() : u.getUpdatedDate();
             long timeDifference = now.getTime() - d.getTime();
             long hoursDifference = timeDifference / (60 * 60 * 1000);
             boolean isGreaterThan24Hours = Math.abs(hoursDifference) > 24;
@@ -153,11 +152,11 @@ public class UserRepositoryImpl implements UserRepository {
                 return "EXPIRE";
             }
         }
-        if(!this.passEncoder.matches(password, u.getPassword())){
+        if (!this.passEncoder.matches(password, u.getPassword())) {
             return "WRONG PASSWORD";
         }
         return u.getStatus();
-   }
+    }
 
     @Override
     public User addUser(User u, String identity) {
@@ -177,8 +176,61 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User updateUser(User u) {
-       Session s = this.factory.getObject().getCurrentSession();
-       s.update(u);
-       return u;
+        Session s = this.factory.getObject().getCurrentSession();
+        s.update(u);
+        return u;
+    }
+
+    @Override
+    public long countUsers(Map<String, String> params) {
+        Session session = this.factory.getObject().getCurrentSession();
+        CriteriaBuilder b = session.getCriteriaBuilder();
+        CriteriaQuery<Long> q = b.createQuery(Long.class);
+        Root root = q.from(User.class);
+        q.select(b.count(root));
+        if (params != null) {
+            List<Predicate> predicates = new ArrayList<>();
+            String role = params.get("role");
+            if (role != null && !role.isEmpty()) {
+                predicates.add(b.equal(root.get("role"), role));
+            }
+            String status = params.get("status");
+            if (status != null && !status.isEmpty()) {
+                predicates.add(b.equal(root.get("status"), status));
+            }
+            q.where(predicates.toArray(Predicate[]::new));
+        }
+        return session.createQuery(q).getSingleResult();
+    }
+
+    @Override
+    public boolean acceptUser(int id) {
+        Session s = this.factory.getObject().getCurrentSession();
+        User u = this.getUserById(id);
+        u.setStatus("ACTIVE");
+        try{
+            s.update(u);
+            return true;
+        } catch (HibernateException ex){
+            printStackTrace(ex);
+            return false;
+        }  
+    }
+
+    @Override
+    public boolean deniedUser(int id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        try {
+            Query q = session.createQuery("DELETE FROM Identity WHERE userId.id=:id");
+            q.setParameter("id", id);
+            q.executeUpdate();
+            q = session.createQuery("DELETE FROM User WHERE id=:id");
+            q.setParameter("id", id);
+            q.executeUpdate();
+            return true;
+        } catch (HibernateException ex) {
+            printStackTrace(ex);
+            return false;
+        }
     }
 }

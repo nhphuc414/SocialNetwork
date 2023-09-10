@@ -21,6 +21,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -47,6 +48,20 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "User.findByCreatedDate", query = "SELECT u FROM User u WHERE u.createdDate = :createdDate"),
     @NamedQuery(name = "User.findByUpdatedDate", query = "SELECT u FROM User u WHERE u.updatedDate = :updatedDate")})
 public class User implements Serializable {
+
+    /**
+     * @return the identity
+     */
+    public String getIdentity() {
+        return identity;
+    }
+
+    /**
+     * @param identity the identity to set
+     */
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -116,7 +131,8 @@ public class User implements Serializable {
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private Set<Comment> commentSet;
-
+    @Transient
+    private String identity;
     public User() {
     }
 

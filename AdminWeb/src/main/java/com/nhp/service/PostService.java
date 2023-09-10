@@ -6,6 +6,8 @@ package com.nhp.service;
 
 import com.nhp.pojo.Post;
 import java.util.List;
+import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -14,4 +16,5 @@ import java.util.List;
 public interface PostService {
     List<Post> getPublicPosts();
     List<Post> getUserPosts(int id);
+    Post addPost(Map<String, String> params,MultipartFile image);
 }

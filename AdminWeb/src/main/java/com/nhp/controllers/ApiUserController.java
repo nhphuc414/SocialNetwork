@@ -5,9 +5,12 @@
 package com.nhp.controllers;
 
 import com.nhp.components.JwtService;
+import com.nhp.pojo.Post;
 import com.nhp.pojo.User;
 import com.nhp.service.UserService;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,7 +48,6 @@ public class ApiUserController {
         } 
         return new ResponseEntity<>(status, HttpStatus.BAD_REQUEST);
     }
-    
     @CrossOrigin
     @GetMapping(path = "/current-user/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> details(Principal user) {
@@ -59,5 +61,12 @@ public class ApiUserController {
     public ResponseEntity<User> addUser(@RequestParam Map<String, String> params, @RequestPart MultipartFile avatar, @RequestPart MultipartFile background) {
         User user = this.userService.addUser(params, avatar, background);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+    @GetMapping("/test/")
+    public ResponseEntity<List<User>> gU() {
+        Map<String, String> params = new HashMap<>();
+        params.put("status","REQUESTING");
+        params.put("role","ROLE_USER");
+        return new ResponseEntity<>(this.userService.getUsers(params), HttpStatus.OK);
     }
 }

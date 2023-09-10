@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react"
 import { Alert } from "react-bootstrap";
-import Apis, { endpoints } from "../../configs/Apis";
+import Apis, { authApi, endpoints } from "../../configs/Apis";
 import LoadingSpinner from "../../layout/LoadingSpinner";
 import Post from "../post/Post";
 import Share from "../share/Share";
@@ -13,9 +13,8 @@ const Feed = () => {
     const loadPosts = async () => {
       try {
         let e = endpoints['posts'];
-        let res = await Apis.get(e);
+        let res = await authApi().get(e);
         setPosts(res.data);
-        console.info(res.data);
       } catch (ex) {
         console.error(ex);
       }

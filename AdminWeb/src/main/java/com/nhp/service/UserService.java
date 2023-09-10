@@ -22,7 +22,8 @@ public interface UserService extends UserDetailsService{
     String authUser(String username, String password);
     boolean addTeacher(User u);
     boolean resetUser(int id);
-    long countTeachers();
-    long countExpire();
+    long countUsers(Map<String, String> params);
     User addUser(Map<String, String> params, MultipartFile avatar, MultipartFile background);
+    boolean acceptUser(int id);
+    boolean deniedUser(int id);
 }

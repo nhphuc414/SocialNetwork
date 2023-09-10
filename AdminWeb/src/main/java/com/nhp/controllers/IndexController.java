@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @Controller
 @PropertySource("classpath:configs.properties")
+@RequestMapping("/admin")
 public class IndexController {
     @Autowired
     private UserService userService;
@@ -43,22 +44,37 @@ public class IndexController {
     public String stats(Model model){
         return "stats";
     }
+    @RequestMapping("/notification")
+    public String noti(Model model){
+        return "noti";
+    }
     @RequestMapping("/users")
     public String users(Model model, @RequestParam Map<String, String> params){
         params.put("role","ROLE_TEACHER");
         model.addAttribute("users", this.userService.getUsers(params));
         int pageSize = Integer.parseInt(this.env.getProperty("PAGE_SIZE"));
-        long count = this.userService.countTeachers();
+        long count = this.userService.countUsers(params);
         model.addAttribute("counter", Math.ceil(count*1.0/pageSize));
         return "users";
     }
     @RequestMapping("/expire")
     public String expireUsers(Model model, @RequestParam Map<String, String> params){
         params.put("status","EXPIRE");
+        params.put("role","ROLE_TEACHER");
         model.addAttribute("users", this.userService.getUsers(params));
         int pageSize = Integer.parseInt(this.env.getProperty("PAGE_SIZE"));
-        long count = this.userService.countExpire();
+        long count = this.userService.countUsers(params);
         model.addAttribute("counter", Math.ceil(count*1.0/pageSize));
         return "expire";
+    }
+    @RequestMapping("/request")
+    public String requestUser(Model model, @RequestParam Map<String, String> params){
+        params.put("status","REQUESTING");
+        params.put("role","ROLE_USER");
+        model.addAttribute("users", this.userService.getUsers(params));
+        int pageSize = Integer.parseInt(this.env.getProperty("PAGE_SIZE"));
+        long count = this.userService.countUsers(params);
+        model.addAttribute("counter", Math.ceil(count*1.0/pageSize));
+        return "request";
     }
 }

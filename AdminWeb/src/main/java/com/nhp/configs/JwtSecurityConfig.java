@@ -30,10 +30,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @ComponentScan(basePackages = {
     "com.nhp.controllers",
     "com.nhp.repository",
-    "com.nhp.service", 
+    "com.nhp.service",
     "com.nhp.components"})
 @Order(1)
-public class JwtSecurityConfig extends WebSecurityConfigurerAdapter{
+public class JwtSecurityConfig extends WebSecurityConfigurerAdapter {
+
     @Bean
     public JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter() throws Exception {
         JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter = new JwtAuthenticationTokenFilter();
@@ -56,6 +57,7 @@ public class JwtSecurityConfig extends WebSecurityConfigurerAdapter{
     protected AuthenticationManager authenticationManager() throws Exception {
         return super.authenticationManager();
     }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().ignoringAntMatchers("/api/**");

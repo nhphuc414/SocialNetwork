@@ -39,6 +39,16 @@
         <put-attribute name="content"
                        value="/WEB-INF/pages/expire.jsp" />
     </definition>
+    <definition name="request" extends="baseLayout">
+        <put-attribute name="title" value="Request" />
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/request.jsp" />
+    </definition>
+    <definition name="noti" extends="baseLayout">
+        <put-attribute name="title" value="Notifications" />
+        <put-attribute name="content"
+                       value="/WEB-INF/pages/noti.jsp" />
+    </definition>
     <definition name="login" extends="baseLayout">
         <put-attribute name="title" value="Login"/>
         <put-attribute name="content"

@@ -20,9 +20,7 @@ const Login = () => {
           "password": password
         });
         cookie.save("token", res.data);
-        console.info(cookie.load("token"));
         let { data } = await authApi().get(endpoints['current-user']);
-        console.info(data);
         cookie.save("user", data);
         dispatch({
           "type": "login",
@@ -52,7 +50,6 @@ const Login = () => {
           </span>
         </div>
         <div className="loginRight">
-          
             <Form onSubmit={login} className="loginBox">
               <Form.Control value={username} onChange={e => setUsername(e.target.value)} className="loginInput" type="text" placeholder="Username..." />
               <Form.Control value={password} onChange={e => setPassword(e.target.value)} className="loginInput" type="password" placeholder="Password..." />

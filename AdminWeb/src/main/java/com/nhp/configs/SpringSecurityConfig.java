@@ -56,23 +56,25 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http)
             throws Exception {
-
         http.formLogin().loginPage("/login")
                 .usernameParameter("username")
                 .passwordParameter("password");
-
-        http.formLogin().defaultSuccessUrl("/")
+        http.formLogin().defaultSuccessUrl("/admin/dashboard")
                 .failureUrl("/login?error");
+        http.logout().logoutUrl("/logout").logoutSuccessUrl("/login");
+        http.exceptionHandling().accessDeniedPage("/login?accessDenied");
 
-        http.logout().logoutSuccessUrl("/login");
-        http.exceptionHandling()
-                .accessDeniedPage("/login?accessDenied");
-
-//        http.authorizeRequests().antMatchers("/").permitAll()
-//                .antMatchers("/**/add")
-//                .access("hasRole('ROLE_ADMIN')");
-//        .antMatchers("/**/pay")
-//                .access("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+        http.authorizeRequests().antMatchers("/").permitAll()
+                .antMatchers("/admin/**")
+                .access("hasRole('ROLE_ADMIN')")
+        .antMatchers("/request/**")
+                .access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/expire/**")
+                .access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/request/**")
+                .access("hasRole('ROLE_ADMIN')")
+                .antMatchers("/add").access("hasRole('ROLE_ADMIN')").and()
+                .exceptionHandling().accessDeniedPage("/login");
         http.csrf().disable();
     }
 

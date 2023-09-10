@@ -5,7 +5,9 @@
 package com.nhp.repository.impl;
 
 import com.nhp.pojo.Post;
+import com.nhp.repository.CommentRepository;
 import com.nhp.repository.PostRepository;
+import com.nhp.repository.ReactionRepository;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -30,7 +32,10 @@ public class PostRepositoryImpl implements PostRepository {
     private LocalSessionFactoryBean factory;
     @Autowired
     private Environment env;
-
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+    private ReactionRepository reactionRepository;
     @Override
     public List<Post> getPublicPosts() {
         Session session = this.factory.getObject().getCurrentSession();
@@ -41,7 +46,7 @@ public class PostRepositoryImpl implements PostRepository {
                 .where(builder.and(
                         builder.notEqual(root.get("status"), "HIDD"),
                         builder.notEqual(root.get("status"), "DEL")
-                ));
+                )).orderBy(builder.desc(root.get("createdDate")));;
         return session.createQuery(criteria).getResultList();
     }
 
@@ -56,6 +61,18 @@ public class PostRepositoryImpl implements PostRepository {
                         builder.equal(root.get("userId"), id),
                         builder.notEqual(root.get("status"), "DEL")
                 ));
-        return session.createQuery(criteria).getResultList();
+        List<Post> posts =session.createQuery(criteria).getResultList();
+        for (Post post : posts) {
+            post.setCountComment(this.commentRepository.countCommentsByPostId(post.getId()));
+            post.setCountReaction(this.reactionRepository.countReactionsByPostId(post.getId()));
+        }
+        return posts;
+    }
+
+    @Override
+    public Post addPost(Post post) {
+        Session session = this.factory.getObject().getCurrentSession();
+        session.save(post);
+        return post;
     }
 }

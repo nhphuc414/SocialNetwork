@@ -5,8 +5,13 @@ import Feed from "../../components/feed/Feed";
 import Rightbar from "../../components/rightbar/Rightbar";
 import { useContext } from "react";
 import { MyUserContext } from "../../App";
+import { Navigate } from "react-router-dom";
 const Profile = () => {
     const [user] = useContext(MyUserContext);
+    if (user === null) {
+        let next = "/login";
+        return <Navigate to={next} />
+    }
     return (
         <>
             <Topbar />

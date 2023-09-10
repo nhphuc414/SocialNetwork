@@ -1,32 +1,71 @@
 import "./share.css";
-import {PermMedia, Label,Room, EmojiEmotions} from '@mui/icons-material'
+import { PermMedia, Label, Room, EmojiEmotions, Cancel } from '@mui/icons-material'
 import { MyUserContext } from "../../App";
-import { useContext } from "react";
+import { useContext, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Apis, { authApi, endpoints } from "../../configs/Apis";
 const Share = () => {
   const [user] = useContext(MyUserContext);
+  const nav = useNavigate();
+  const [err, setErr] = useState(null);
+  const [content, setContent] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    const process = async () => {
+      let form = new FormData();
+      form.append("content",content);
+      form.append("image",file);
+      form.append("userId",user.id);
+      console.info(form.get("image"));
+      setLoading(true);
+      let {data} = await authApi().post(endpoints['addpost'], form);
+            if (data.status === 201) {
+                nav("/");
+            } else
+            setErr("Hệ thống bị lỗi!");
+    }
+    process()
+  }
   return (
-    
-    <div className="share">
+    <form className="share" onSubmit={submitHandler}>
       <div className="shareWrapper">
         <div className="shareTop">
           <img className="shareProfileImg" src={user.avatar} alt="" />
           <input
-            placeholder="What's in your mind Safak?"
+            placeholder={"What's in your mind " + user.displayName + "?"}
             className="shareInput"
+            onChange={(e) => setContent(e.target.value)}
+            required
           />
         </div>
-        <hr className="shareHr"/>
+        <hr className="shareHr" />
+        <hr className="shareHr" />
+        {file && (
+          <div className="shareImgContainer">
+            <img className="shareImg" src={URL.createObjectURL(file)} alt="" />
+            <Cancel className="shareCancelImg" onClick={() => setFile(null)} />
+          </div>
+        )}
         <div className="shareBottom">
-            <div className="shareOptions">
-                <div className="shareOption">
-                    <PermMedia htmlColor="tomato" className="shareIcon"/>
-                    <span className="shareOptionText">Photo or Video</span>
-                </div>
-            </div>
-            <button className="shareButton">Share</button>
+          <div className="shareOptions">
+            <label htmlFor="file" className="shareOption">
+              <PermMedia htmlColor="tomato" className="shareIcon" />
+              <span className="shareOptionText">Photo or Video</span>
+              <input
+                style={{ display: "none" }}
+                type="file"
+                id="file"
+                accept=".png,.jpeg,.jpg"
+                onChange={(e) => setFile(e.target.files[0])}
+              />
+            </label>
+          </div>
+          <button className="shareButton" type="submit">Share</button>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
 export default Share

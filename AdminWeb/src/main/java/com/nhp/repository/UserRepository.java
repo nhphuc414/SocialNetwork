@@ -14,13 +14,14 @@ import java.util.Map;
  */
 public interface UserRepository {
     List<User> getUsers(Map<String, String> params);
+    long countUsers(Map<String, String> params);
     User getUserById(int id);
     User getUserByUsername(String username);
     boolean addTeacher(User u);
-    long countTeachers();
-    long countExpire();
     boolean resetUser(int id);
     String authUser(String username,String password);
     User addUser(User u,String identity);
     User updateUser(User u);
+    boolean acceptUser(int id);
+    boolean deniedUser(int id);
 }

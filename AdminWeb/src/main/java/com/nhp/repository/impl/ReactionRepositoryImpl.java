@@ -4,9 +4,7 @@
  */
 package com.nhp.repository.impl;
 
-import com.nhp.pojo.Comment;
-import com.nhp.repository.CommentRepository;
-import java.util.List;
+import com.nhp.repository.ReactionRepository;
 import javax.persistence.Query;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,21 +18,15 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Transactional
-public class CommentRepositoryImpl implements CommentRepository{
+public class ReactionRepositoryImpl implements ReactionRepository{
     @Autowired
     private LocalSessionFactoryBean factory;
     @Override
-    public List<Comment> getComments(int postId) {
+    public long countReactionsByPostId(int postId) {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("From Comment Where postId.id=:id");
-        q.setParameter("id", postId);
-        return q.getResultList();
-    }
-    @Override
-    public long countCommentsByPostId(int postId) {
-        Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("SELECT count(c) From Comment c Where c.postId.id=:id");
+        Query q = s.createQuery("SELECT count(r) From Reaction r Where r.postId.id=:id");
         q.setParameter("id", postId);
         return Long.parseLong(q.getSingleResult().toString());
     }
+    
 }

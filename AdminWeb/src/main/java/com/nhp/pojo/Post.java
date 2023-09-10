@@ -23,6 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -81,10 +82,14 @@ public class Post implements Serializable {
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "postId")
     private Set<Comment> commentSet;
-
+    
+    @Transient
+    private long countReaction;
+    @Transient
+    private long countComment;
+    
     public Post() {
     }
-
     public Post(Integer id) {
         this.id = id;
     }
@@ -193,6 +198,33 @@ public class Post implements Serializable {
     @Override
     public String toString() {
         return "com.nhp.pojo.Post[ id=" + id + " ]";
+    }
+    /**
+     * @return the countReaction
+     */
+    public long getCountReaction() {
+        return countReaction;
+    }
+
+    /**
+     * @param countReaction the countReaction to set
+     */
+    public void setCountReaction(long countReaction) {
+        this.countReaction = countReaction;
+    }
+
+    /**
+     * @return the countComment
+     */
+    public long getCountComment() {
+        return countComment;
+    }
+
+    /**
+     * @param countComment the countComment to set
+     */
+    public void setCountComment(long countComment) {
+        this.countComment = countComment;
     }
     
 }

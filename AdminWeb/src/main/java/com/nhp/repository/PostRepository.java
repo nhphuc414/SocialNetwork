@@ -14,5 +14,7 @@ import java.util.List;
 public interface PostRepository {
     List<Post> getPublicPosts();
     List<Post> getUserPosts(int id);
-    Post addPost(Post post);
+    Post getPostById(int id);
+    Post add(Post post);
+    boolean update(Post post);
 }

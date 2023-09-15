@@ -27,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.ObjectError;
 
 /**
  *
@@ -176,9 +177,14 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User updateUser(User u) {
-        Session s = this.factory.getObject().getCurrentSession();
-        s.update(u);
-        return u;
+        try {
+            Session s = this.factory.getObject().getCurrentSession();
+            s.update(u);
+            return u;
+        } catch (HibernateException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -208,13 +214,13 @@ public class UserRepositoryImpl implements UserRepository {
         Session s = this.factory.getObject().getCurrentSession();
         User u = this.getUserById(id);
         u.setStatus("ACTIVE");
-        try{
+        try {
             s.update(u);
             return true;
-        } catch (HibernateException ex){
+        } catch (HibernateException ex) {
             printStackTrace(ex);
             return false;
-        }  
+        }
     }
 
     @Override
@@ -232,5 +238,37 @@ public class UserRepositoryImpl implements UserRepository {
             printStackTrace(ex);
             return false;
         }
+    }
+
+    @Override
+    public ObjectError checkUnique(Map<String, String> params) {
+        Session session = this.factory.getObject().getCurrentSession();
+        if (!params.isEmpty()) {
+            String username = params.get("username");
+            if (username != null && !username.isEmpty()) {
+                Query query = session.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class);
+                query.setParameter("username", username);
+                if (!query.getResultList().isEmpty()) {
+                    return new ObjectError("unique", "Username has existed");
+                }
+            }
+            String email = params.get("email");
+            if (email != null && !email.isEmpty()) {
+                Query query = session.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class);
+                query.setParameter("email", email);
+                if (!query.getResultList().isEmpty()) {
+                    return new ObjectError("unique", "Email has existed");
+                }
+            }
+            String identity = params.get("identity");
+            if (identity != null && !identity.isEmpty()) {
+                Query query = session.createQuery("SELECT i FROM Identity i WHERE i.identity = :identity", User.class);
+                query.setParameter("identity", identity);
+                if (!query.getResultList().isEmpty()) {
+                    return new ObjectError("unique", "Identity has existed");
+                }
+            }
+        }
+        return null;
     }
 }

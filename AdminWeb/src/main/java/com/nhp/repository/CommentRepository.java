@@ -13,5 +13,9 @@ import java.util.List;
  */
 public interface CommentRepository {
     List<Comment> getComments(int postId);
+    Comment getCommentById(int id);
     long countCommentsByPostId(int postId);
+    Comment add(Comment comment);
+    boolean update(Comment comment);
+    
 }

@@ -4,10 +4,9 @@
  */
 package com.nhp.service;
 
+import com.nhp.dto.PostDTO;
 import com.nhp.pojo.Post;
 import java.util.List;
-import java.util.Map;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -16,5 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface PostService {
     List<Post> getPublicPosts();
     List<Post> getUserPosts(int id);
-    Post addPost(Map<String, String> params,MultipartFile image);
+    Post getPostById(int id);
+    Post addPost(PostDTO post);
+    boolean update(PostDTO post);
 }

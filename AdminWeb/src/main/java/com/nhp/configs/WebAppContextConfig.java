@@ -6,7 +6,6 @@ package com.nhp.configs;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import java.text.SimpleDateFormat;
 import java.util.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -28,7 +27,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
-
 /**
  *
  * @author admin
@@ -37,10 +35,7 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 @EnableWebMvc
 @EnableTransactionManagement
 @ComponentScan(basePackages = {
-    "com.nhp.controllers",
-    "com.nhp.service",
-    "com.nhp.repository"
-})
+    "com.nhp",})
 @PropertySource("classpath:configs.properties")
 public class WebAppContextConfig implements WebMvcConfigurer {
 
@@ -51,12 +46,14 @@ public class WebAppContextConfig implements WebMvcConfigurer {
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
     }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/js/**").addResourceLocations("/WEB-INF/resources/js/");
-        registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/resources/css/");
-        registry.addResourceHandler("/img/**").addResourceLocations("/WEB-INF/resources/img/");
+        registry.addResourceHandler("/js/**").addResourceLocations("/WEB-INF/resources/js/").resourceChain(true);
+        registry.addResourceHandler("/css/**").addResourceLocations("/WEB-INF/resources/css/").resourceChain(true);
+        registry.addResourceHandler("/img/**").addResourceLocations("/WEB-INF/resources/img/").resourceChain(true);;
     }
+
     @Bean
     public Cloudinary cloudinary() {
         Cloudinary cloudinary
@@ -76,28 +73,15 @@ public class WebAppContextConfig implements WebMvcConfigurer {
         return resolver;
     }
 
-     @Bean
-    public MessageSource messageSource(){
-        ResourceBundleMessageSource resource = new ResourceBundleMessageSource();
-        resource.setBasename("messages");
-        return resource;
+    @Bean
+    public MessageSource messageSource() {
+        ResourceBundleMessageSource m = new ResourceBundleMessageSource();
+
+        m.setBasenames("messages");
+
+        return m;
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        LocaleChangeInterceptor localeChangeInterceptor= new LocaleChangeInterceptor();
-        localeChangeInterceptor.setParamName("language");
-        registry.addInterceptor(localeChangeInterceptor);
-    }
-    
-    @Bean
-    public CookieLocaleResolver localeResolver(){
-        CookieLocaleResolver localeResolver = new CookieLocaleResolver();
-        localeResolver.setDefaultLocale(Locale.ENGLISH);
-        localeResolver.setCookieName("my-locale-cookie");
-        localeResolver.setCookieMaxAge(3600);
-        return localeResolver;
-    }
     @Bean(name = "validator")
     public LocalValidatorFactoryBean validator() {
         LocalValidatorFactoryBean bean
@@ -109,5 +93,22 @@ public class WebAppContextConfig implements WebMvcConfigurer {
     @Override
     public Validator getValidator() {
         return validator();
+    }
+
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
+        localeChangeInterceptor.setParamName("language");
+        registry.addInterceptor(localeChangeInterceptor);
+    }
+
+    @Bean
+    public CookieLocaleResolver localeResolver() {
+        CookieLocaleResolver localeResolver = new CookieLocaleResolver();
+        localeResolver.setDefaultLocale(Locale.ENGLISH);
+        localeResolver.setCookieName("my-locale-cookie");
+        localeResolver.setCookieMaxAge(3600);
+        return localeResolver;
     }
 }

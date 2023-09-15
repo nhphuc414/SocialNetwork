@@ -13,26 +13,30 @@
     </div>
     <div class="container d-flex justify-content-center">
         <c:url value="/add" var="action" />
+        <form:errors path="unique" element="div" cssClass="alert alert-danger" />
         <form:form method="post" action="${action}" onsubmit="return validateForm();" style="width:50vw; min-width:300px;" modelAttribute="user">
             <div class="mb-3">
                 <div class="mb-3">
                     <label class="form-label">Display name</label>
                     <form:input type="text" class="form-control" 
                                 path="displayName" id="displayName" placeholder="Enter display name here" required="required"/>
+                    <form:errors path="displayName" element="div" cssClass="text-danger" />
                 </div>
                 <div class="col">
                     <label class="form-label">Username</label>
                     <form:input type="text" class="form-control" 
                                 path="username" id="username" placeholder="Enter username here" required="required"/>
+                     <form:errors path="username" element="div" cssClass="text-danger" />
                 </div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input type="email" class="form-control" name="email" placeholder="name@example.com" required="required">
+                <form:errors path="email" element="div" cssClass="text-danger" />
             </div>
             <div>
                 <button type="submit" class="btn btn-success" name="submit">Save</button>
-                <a href="<c:url value="/users"/>" class="btn btn-danger">Cancel</a>
+                <a href="<c:url value="/admin/users"/>" class="btn btn-danger">Cancel</a>
             </div>
         </form:form>
     </div>

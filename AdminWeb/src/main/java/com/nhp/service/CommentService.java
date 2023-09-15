@@ -4,6 +4,7 @@
  */
 package com.nhp.service;
 
+import com.nhp.dto.CommentDTO;
 import com.nhp.pojo.Comment;
 import java.util.List;
 
@@ -13,4 +14,7 @@ import java.util.List;
  */
 public interface CommentService {
     List<Comment> getComments(int postId);
+    Comment getCommentById(int id);
+    Comment add(CommentDTO commentDTO);
+    boolean update(CommentDTO commentDTO);
 }

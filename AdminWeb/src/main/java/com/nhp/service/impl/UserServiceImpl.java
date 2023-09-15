@@ -6,6 +6,7 @@ package com.nhp.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.nhp.dto.UserDTO;
 import com.nhp.pojo.User;
 import com.nhp.repository.UserRepository;
 import com.nhp.service.UserService;
@@ -23,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -89,18 +91,18 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User addUser(Map<String, String> params, MultipartFile avatar, MultipartFile background) {
+    public User addUser(UserDTO userDTO) {
         User u = new User();
-        u.setDisplayName(params.get("displayName"));
-        u.setEmail(params.get("email"));
-        u.setUsername(params.get("username"));
-        u.setPassword(this.passwordEncoder.encode(params.get("password")));
+        u.setDisplayName(userDTO.getDisplayName());
+        u.setEmail(userDTO.getEmail());
+        u.setUsername(userDTO.getUsername());
+        u.setPassword(this.passwordEncoder.encode(userDTO.getPassword()));
         u.setRole("ROLE_USER");
         u.setCreatedDate(new Date());
         u.setStatus("REQUESTING");
-        if (!avatar.isEmpty()) {
+        if (!userDTO.getAvatar().isEmpty()) {
             try { 
-                Map res = this.cloudinary.uploader().upload(avatar.getBytes(),
+                Map res = this.cloudinary.uploader().upload(userDTO.getAvatar().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));
                 u.setAvatar(res.get("secure_url").toString());
             } catch (IOException ex) {
@@ -108,9 +110,9 @@ public class UserServiceImpl implements UserService{
             }
            
         }
-        if (!background.isEmpty()) {
+        if (!userDTO.getBackground().isEmpty()) {
             try { 
-                Map res = this.cloudinary.uploader().upload(background.getBytes(),
+                Map res = this.cloudinary.uploader().upload(userDTO.getBackground().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));
                 u.setBackground(res.get("secure_url").toString());
             } catch (IOException ex) {
@@ -118,7 +120,7 @@ public class UserServiceImpl implements UserService{
             }
            
         }
-        return this.userRepository.addUser(u,params.get("identity"));
+        return this.userRepository.addUser(u,userDTO.getIdentity());
     }
 
     @Override
@@ -134,5 +136,48 @@ public class UserServiceImpl implements UserService{
     @Override
     public boolean deniedUser(int id) {
         return this.userRepository.deniedUser(id);
+    }
+
+    @Override
+    public ObjectError checkUnique(Map<String, String> params) {
+        return this.userRepository.checkUnique(params);
+    }
+
+    @Override
+    public User updateUser(UserDTO userDTO) {
+        User u = this.userRepository.getUserById(Integer.parseInt(userDTO.getId()));
+        if (userDTO.getDisplayName()!=null){
+            u.setDisplayName(userDTO.getDisplayName());
+        }
+        if(userDTO.getPassword()!=null){
+           u.setPassword(this.passwordEncoder.encode(userDTO.getPassword()));
+        }
+        if (userDTO.getEmail()!=null){
+            u.setEmail(userDTO.getEmail());
+        }
+        if (userDTO.getStatus()!=null){
+            u.setStatus(userDTO.getStatus());
+        }
+        if (!userDTO.getAvatar().isEmpty()) {
+            try { 
+                Map res = this.cloudinary.uploader().upload(userDTO.getAvatar().getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto"));
+                u.setAvatar(res.get("secure_url").toString());
+            } catch (IOException ex) {
+                Logger.getLogger(UserServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+           
+        }
+        if (!userDTO.getBackground().isEmpty()) {
+            try { 
+                Map res = this.cloudinary.uploader().upload(userDTO.getBackground().getBytes(),
+                        ObjectUtils.asMap("resource_type", "auto"));
+                u.setBackground(res.get("secure_url").toString());
+            } catch (IOException ex) {
+                Logger.getLogger(UserServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+           
+        }
+        return this.userRepository.updateUser(u);
     }
 }

@@ -13,6 +13,7 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -36,6 +37,7 @@ public class PostRepositoryImpl implements PostRepository {
     private CommentRepository commentRepository;
     @Autowired
     private ReactionRepository reactionRepository;
+
     @Override
     public List<Post> getPublicPosts() {
         Session session = this.factory.getObject().getCurrentSession();
@@ -46,7 +48,7 @@ public class PostRepositoryImpl implements PostRepository {
                 .where(builder.and(
                         builder.notEqual(root.get("status"), "HIDD"),
                         builder.notEqual(root.get("status"), "DEL")
-                )).orderBy(builder.desc(root.get("createdDate")));;
+                )).orderBy(builder.desc(root.get("createdDate")));
         return session.createQuery(criteria).getResultList();
     }
 
@@ -61,7 +63,7 @@ public class PostRepositoryImpl implements PostRepository {
                         builder.equal(root.get("userId"), id),
                         builder.notEqual(root.get("status"), "DEL")
                 ));
-        List<Post> posts =session.createQuery(criteria).getResultList();
+        List<Post> posts = session.createQuery(criteria).getResultList();
         for (Post post : posts) {
             post.setCountComment(this.commentRepository.countCommentsByPostId(post.getId()));
             post.setCountReaction(this.reactionRepository.countReactionsByPostId(post.getId()));
@@ -70,9 +72,28 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Post addPost(Post post) {
+    public Post add(Post post) {
         Session session = this.factory.getObject().getCurrentSession();
         session.save(post);
+        return post;
+    }
+
+    @Override
+    public boolean update(Post post) {
+        Session s = this.factory.getObject().getCurrentSession();
+        try {
+            s.update(post);
+            return true;
+        } catch (HibernateException ex) {
+            return false;
+        }
+    }
+
+    @Override
+    public Post getPostById(int id) {
+        Session session = this.factory.getObject().getCurrentSession();
+        Post post = session.get(Post.class,
+                id);
         return post;
     }
 }

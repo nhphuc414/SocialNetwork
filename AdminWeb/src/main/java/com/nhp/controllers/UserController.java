@@ -6,10 +6,15 @@ package com.nhp.controllers;
 
 import com.nhp.pojo.User;
 import com.nhp.service.UserService;
+import java.util.HashMap;
+import java.util.Map;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -42,12 +47,16 @@ public class UserController {
         return "redirect:/admin/";
     }
     @PostMapping("/add")
-    public String add(@ModelAttribute(value = "user") User u) {
-        System.out.println(u.getDisplayName());
-        if (this.userService.addTeacher(u) == true) {
+    public String add(@Valid @ModelAttribute(value = "user") User u, BindingResult rs) {
+        Map<String, String> params = new HashMap<>();
+        params.put("username",u.getUsername());
+        params.put("email",u.getEmail());
+        rs.addError(this.userService.checkUnique(params));
+        if (!rs.hasErrors()) {
+            if (this.userService.addTeacher(u) == true) {
             return "redirect:/users";
-        }
-        return "add";
+            }
+        }return "add";
     }
 
     @GetMapping("/expire/{id}")

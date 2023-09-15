@@ -10,7 +10,7 @@
         <ul class="pagination mt-1">
             <li class="page-item"><a class="page-link" href="<c:url value="/" />">All</a></li>
                 <c:forEach begin="1" end="${counter}" var="i">
-                    <c:url value="/expire" var="pageUrl">
+                    <c:url value="/admin/expire" var="pageUrl">
                         <c:param name="page" value="${i}"></c:param>
                     </c:url>
                 <li class="page-item"><a class="page-link" href="${pageUrl}">${i}</a></li>

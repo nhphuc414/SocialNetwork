@@ -13,6 +13,10 @@ import com.nhp.service.ReactionService;
 import com.nhp.service.UserService;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,27 +46,36 @@ public class ReactionServiceImpl implements ReactionService {
     }
 
     @Override
-    public boolean addOrUpdateOrDelete(ReactionDTO reactionDTO) {
+    public ResponseEntity addOrUpdateOrDelete(ReactionDTO reactionDTO) {
         if (reactionDTO.getStatus().equals("add")) {
             Reaction reaction = new Reaction();
             reaction.setCreatedDate(new Date());
-            reaction.setUserId(this.userService.getUserById(reactionDTO.getUserId()));
+            reaction.setUserId(this.userService.getUserById(Integer.parseInt(reactionDTO.getUserId())));
             reaction.setType(reactionDTO.getType());
-            if (reactionDTO.getPostId() != 0) {
-                reaction.setPostId(this.postService.getPostById(reactionDTO.getPostId()));
+            if (reactionDTO.getPostId() != null && !reactionDTO.getPostId().isEmpty()) {
+                reaction.setPostId(this.postService.getPostById(Integer.parseInt(reactionDTO.getPostId())).getBody());
+            }else if (reactionDTO.getCommentId() != null && !reactionDTO.getPostId().isEmpty()) {
+                reaction.setCommentId(this.commentService.getCommentById(Integer.parseInt(reactionDTO.getCommentId())));
             }
-            if (reactionDTO.getCommentId() != 0) {
-                reaction.setCommentId(this.commentService.getCommentById(reactionDTO.getCommentId()));
-            }
-            return this.reactionRepository.add(reaction);
+            this.reactionRepository.add(reaction);
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
         } else {
-            Reaction reaction = this.reactionRepository.getById(reactionDTO.getId());
-            if (reactionDTO.getStatus().equals("delete")) {
-                return this.reactionRepository.delete(reactionDTO.getId());
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Reaction reaction = this.reactionRepository.getById(Integer.parseInt(reactionDTO.getId()));
+            if (!this.userService.getUserById(reaction.getUserId().getId()).getUsername().equals(authentication.getName())) {
+                return new ResponseEntity("YOU DON'T HAVE PERMISSION", HttpStatus.BAD_REQUEST);
             }
+            if (reactionDTO.getStatus().equals("delete")) {
+                this.reactionRepository.delete(Integer.parseInt(reactionDTO.getId()));
+                return new ResponseEntity(HttpStatus.NO_CONTENT);
+            }
+            if (reactionDTO.getStatus().equals("update")) {
             reaction.setType(reactionDTO.getType());
-            return this.reactionRepository.update(reaction);
+            this.reactionRepository.update(reaction);
+                return new ResponseEntity(HttpStatus.NO_CONTENT);
+            }
         }
+        return new ResponseEntity("SOMETHING WRONG",HttpStatus.BAD_REQUEST);
     }
 
 }

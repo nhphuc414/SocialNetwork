@@ -18,11 +18,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -39,15 +39,20 @@ public class PostServiceImpl implements PostService {
     private UserService userService;
 
     @Override
-    public List<Post> getPublicPosts() {
-        return this.postRepository.getPublicPosts();
+    public ResponseEntity<List<Post>> getPublicPosts() {
+        return new ResponseEntity<>(this.postRepository.getPublicPosts(), HttpStatus.OK);
     }
 
     @Override
-    public List<Post> getUserPosts(int id) {
-        return this.postRepository.getUserPosts(id);
+    public ResponseEntity<List<Post>> getUserPosts(int id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (this.userService.getUserById(id).getUsername().equals(authentication.getName())
+            ||authentication.getAuthorities().stream().
+             anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"))) {
+            return new ResponseEntity<>(this.postRepository.getUserPosts(id,Boolean.TRUE), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(this.postRepository.getUserPosts(id,Boolean.FALSE), HttpStatus.OK);
     }
-
     @Override
     public Post addPost(PostDTO post) {
         Post newpost = new Post();
@@ -55,7 +60,7 @@ public class PostServiceImpl implements PostService {
         newpost.setStatus("PUBLIC");
         newpost.setCreatedDate(new Date());
         newpost.setUserId(this.userService.getUserById(Integer.parseInt(post.getUserId())));
-        if (!post.getImage().isEmpty()) {
+        if (post.getImage()!= null && !post.getImage().isEmpty()) {
             try {
                 Map res = this.cloudinary.uploader().upload(post.getImage().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));
@@ -68,20 +73,32 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post getPostById(int id) {
-        return this.postRepository.getPostById(id);
+    public ResponseEntity<Post> getPostById(int id) {
+        Post post = this.postRepository.getPostById(id);
+        if (post.getStatus().equals("DEL"))
+            return new ResponseEntity("POST DELETED", HttpStatus.BAD_REQUEST);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (this.userService.getUserById(this.postRepository.getPostById(id).getUserId().getId()).getUsername().equals(authentication.getName())
+                || authentication.getAuthorities().stream().
+                        anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"))) {
+            return new ResponseEntity(post , HttpStatus.OK);
+        }
+        return new ResponseEntity("YOU DON'T HAVE PERMISSION", HttpStatus.BAD_REQUEST);
+        
     }
 
     @Override
-    public boolean update(PostDTO post) {
+    public ResponseEntity update(PostDTO post) {
         Post updatePost = this.postRepository.getPostById(Integer.parseInt(post.getId()));
-        if (!post.getContent().isBlank()) {
+        if (updatePost.getStatus().equals("DEL"))
+            return new ResponseEntity("POST DELETED", HttpStatus.BAD_REQUEST);
+        if (post.getContent()!=null && !post.getContent().isEmpty() ) {
             updatePost.setContent(post.getContent());
         }
-        if (!post.getStatus().isBlank()) {
+        if (post.getStatus()!=null && !post.getStatus().isEmpty()) {
             updatePost.setStatus(post.getStatus());
         }
-        if (!post.getImage().isEmpty()) {
+        if (post.getImage()!=null && !post.getImage().isEmpty()) {
             try {
                 Map res = this.cloudinary.uploader().upload(post.getImage().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));
@@ -89,15 +106,15 @@ public class PostServiceImpl implements PostService {
             } catch (IOException ex) {
                 Logger.getLogger(UserServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
+        } 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (updatePost.getUserId().getUsername().equals(authentication.getName())) {
-            return postRepository.update(updatePost);
+        if (this.userService.getUserById(updatePost.getUserId().getId()).getUsername().equals(authentication.getName())){
+            return new ResponseEntity(postRepository.update(updatePost), HttpStatus.OK);
         }
-        if (authentication.getAuthorities().stream()
-                            .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")) 
-                && post.getStatus().equals("DEL"))
-            return postRepository.update(updatePost);
-        return false;
+        if (authentication.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"))&&
+                post.getStatus().equals("DEL")){
+             return new ResponseEntity(postRepository.update(updatePost), HttpStatus.OK);
+        }
+        return new ResponseEntity("YOU DON'T HAVE PERMISSION", HttpStatus.BAD_REQUEST);
     }
 }

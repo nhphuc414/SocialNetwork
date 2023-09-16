@@ -12,7 +12,8 @@ import java.util.Map;
  * @author ad
  */
 public interface StatsRepository {
-    List<Object[]> stats(Map<String, String> params);
+    List<Object[]> countUsers(Map<String, String> params);
+    List<Object[]> countPosts(Map<String, String> params);
     long countPostsThisMonth();
     long countUsers();
     long countUsersThisMonth();

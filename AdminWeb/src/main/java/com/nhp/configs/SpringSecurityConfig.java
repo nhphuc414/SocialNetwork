@@ -29,9 +29,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableWebSecurity
 @EnableTransactionManagement
 @ComponentScan(basePackages = {
-    "com.nhp.controllers",
-    "com.nhp.repository",
-    "com.nhp.service"
+    "com.nhp",
 })
 @Order(2)
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -40,6 +38,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     private Environment env;
     @Autowired
     private UserDetailsService userDetailsService;
+    
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -59,7 +58,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
         http.formLogin().loginPage("/login")
                 .usernameParameter("username")
                 .passwordParameter("password");
-        http.formLogin().defaultSuccessUrl("/admin/dashboard")
+        http.formLogin().defaultSuccessUrl("/admin/")
                 .failureUrl("/login?error");
         http.logout().logoutUrl("/logout").logoutSuccessUrl("/login");
         http.exceptionHandling().accessDeniedPage("/login?accessDenied");
@@ -74,7 +73,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/request/**")
                 .access("hasRole('ROLE_ADMIN')")
                 .antMatchers("/add").access("hasRole('ROLE_ADMIN')").and()
-                .exceptionHandling().accessDeniedPage("/login");
+                .exceptionHandling().accessDeniedPage("/login?accessDenied");
         http.csrf().disable();
     }
 

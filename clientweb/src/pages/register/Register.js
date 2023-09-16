@@ -29,6 +29,7 @@ const Register = () => {
           form.append(field, user[field]);
       form.append("avatar", avatar.current.files[0]);
       form.append("background", background.current.files[0]);
+      form.append("id",null);
       setLoading(true)
       console.info(form);
       let res = await Apis.post(endpoints['register'], form);

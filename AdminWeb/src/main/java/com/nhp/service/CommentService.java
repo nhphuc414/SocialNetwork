@@ -7,14 +7,15 @@ package com.nhp.service;
 import com.nhp.dto.CommentDTO;
 import com.nhp.pojo.Comment;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 /**
  *
  * @author ad
  */
 public interface CommentService {
-    List<Comment> getComments(int postId);
+    ResponseEntity<List<Comment>> getComments(int postId);
     Comment getCommentById(int id);
-    Comment add(CommentDTO commentDTO);
-    boolean update(CommentDTO commentDTO);
+    ResponseEntity<Comment> add(CommentDTO commentDTO);
+    ResponseEntity update(CommentDTO commentDTO);
 }

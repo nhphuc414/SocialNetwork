@@ -13,10 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Data
 public class CommentDTO {
-    private int id;
+    private String id;
     private String content;
     private MultipartFile image;
     private String status;
-    private int userId;
-    private int postId;
+    private String userId;
+    private String postId;
 }

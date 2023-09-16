@@ -12,10 +12,10 @@ import lombok.Data;
  */
 @Data
 public class ReactionDTO {
-    private int id;
+    private String id;
     private String type;
-    private int userId;
-    private int postId;
-    private int commentId;
+    private String userId;
+    private String postId;
+    private String commentId;
     private String status;
 }

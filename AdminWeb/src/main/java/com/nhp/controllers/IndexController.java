@@ -7,6 +7,7 @@ package com.nhp.controllers;
 
 import com.nhp.service.StatsService;
 import com.nhp.service.UserService;
+import java.util.Calendar;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
@@ -42,6 +43,7 @@ public class IndexController {
     }
     @RequestMapping("/stats")
     public String stats(Model model){
+        model.addAttribute("currentYear", Calendar.getInstance().get(Calendar.YEAR));
         return "stats";
     }
     @RequestMapping("/notification")

@@ -7,15 +7,16 @@ package com.nhp.service;
 import com.nhp.dto.PostDTO;
 import com.nhp.pojo.Post;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 /**
  *
  * @author ad
  */
 public interface PostService {
-    List<Post> getPublicPosts();
-    List<Post> getUserPosts(int id);
-    Post getPostById(int id);
+    ResponseEntity<List<Post>> getPublicPosts();
+    ResponseEntity<List<Post>> getUserPosts(int id);
+    ResponseEntity<Post> getPostById(int id);
     Post addPost(PostDTO post);
-    boolean update(PostDTO post);
+    ResponseEntity update(PostDTO post);
 }

@@ -16,13 +16,16 @@ const Share = () => {
     const process = async () => {
       let form = new FormData();
       form.append("content",content);
-      form.append("image",file);
-      form.append("userId",user.id);
-      console.info(form.get("image"));
+      if (file!==null)
+      {
+        form.append("image",file[0].file)
+      }
+      console.info(form.get("userId"))
       setLoading(true);
       let {data} = await authApi().post(endpoints['addpost'], form);
-            if (data.status === 201) {
-                nav("/");
+            if (data.status === 200) {
+              setContent('');
+              setFile(null)
             } else
             setErr("Hệ thống bị lỗi!");
     }

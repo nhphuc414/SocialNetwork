@@ -100,7 +100,7 @@ public class UserServiceImpl implements UserService{
         u.setRole("ROLE_USER");
         u.setCreatedDate(new Date());
         u.setStatus("REQUESTING");
-        if (!userDTO.getAvatar().isEmpty()) {
+        if (userDTO.getAvatar()!=null  && !userDTO.getAvatar().isEmpty()) {
             try { 
                 Map res = this.cloudinary.uploader().upload(userDTO.getAvatar().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));
@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService{
             }
            
         }
-        if (!userDTO.getBackground().isEmpty()) {
+        if (userDTO.getBackground()!=null && !userDTO.getBackground().isEmpty()) {
             try { 
                 Map res = this.cloudinary.uploader().upload(userDTO.getBackground().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));
@@ -152,13 +152,13 @@ public class UserServiceImpl implements UserService{
         if(userDTO.getPassword()!=null){
            u.setPassword(this.passwordEncoder.encode(userDTO.getPassword()));
         }
-        if (userDTO.getEmail()!=null){
+        if (userDTO.getEmail()!=null&& !userDTO.getEmail().isEmpty()){
             u.setEmail(userDTO.getEmail());
         }
-        if (userDTO.getStatus()!=null){
+        if (userDTO.getStatus()!=null && !userDTO.getStatus().isEmpty()){
             u.setStatus(userDTO.getStatus());
         }
-        if (!userDTO.getAvatar().isEmpty()) {
+        if (userDTO.getAvatar()!=null && !userDTO.getAvatar().isEmpty()) {
             try { 
                 Map res = this.cloudinary.uploader().upload(userDTO.getAvatar().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));
@@ -168,7 +168,7 @@ public class UserServiceImpl implements UserService{
             }
            
         }
-        if (!userDTO.getBackground().isEmpty()) {
+        if (userDTO.getBackground()!=null && !userDTO.getBackground().isEmpty()) {
             try { 
                 Map res = this.cloudinary.uploader().upload(userDTO.getBackground().getBytes(),
                         ObjectUtils.asMap("resource_type", "auto"));

@@ -7,6 +7,7 @@ package com.nhp.repository.impl;
 import com.nhp.pojo.Comment;
 import com.nhp.pojo.Post;
 import com.nhp.repository.CommentRepository;
+import com.nhp.repository.ReactionRepository;
 import java.util.List;
 import javax.persistence.Query;
 import org.hibernate.HibernateException;
@@ -25,17 +26,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class CommentRepositoryImpl implements CommentRepository{
     @Autowired
     private LocalSessionFactoryBean factory;
+    @Autowired
+    private ReactionRepository reactionRepository;
     @Override
     public List<Comment> getComments(int postId) {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("From Comment Where postId.id=:id");
+        Query q = s.createQuery("From Comment Where postId.id=:id and status='PUBLIC'");
         q.setParameter("id", postId);
+        List<Comment> comments = q.getResultList();
+        for (Comment comment : comments) {
+            comment.setCountReaction(this.reactionRepository.countReactionsByPostId(comment.getId()));
+        }
         return q.getResultList();
     }
     @Override
     public long countCommentsByPostId(int postId) {
         Session s = this.factory.getObject().getCurrentSession();
-        Query q = s.createQuery("SELECT count(c) From Comment c Where c.postId.id=:id");
+        Query q = s.createQuery("SELECT count(c) From Comment c Where c.postId.id=:id and c.status='PUBLIC'");
         q.setParameter("id", postId);
         return Long.parseLong(q.getSingleResult().toString());
     }
@@ -48,13 +55,13 @@ public class CommentRepositoryImpl implements CommentRepository{
     }
 
     @Override
-    public boolean update(Comment comment) {
+    public Comment update(Comment comment) {
         Session s = this.factory.getObject().getCurrentSession();
         try {
             s.update(comment);
-            return true;
+            return comment;
         } catch (HibernateException ex) {
-            return false;
+            return null;
         }
     }
 

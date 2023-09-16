@@ -49,20 +49,33 @@ public class PostRepositoryImpl implements PostRepository {
                         builder.notEqual(root.get("status"), "HIDD"),
                         builder.notEqual(root.get("status"), "DEL")
                 )).orderBy(builder.desc(root.get("createdDate")));
-        return session.createQuery(criteria).getResultList();
+        List<Post> posts = session.createQuery(criteria).getResultList();
+        for (Post post : posts) {
+            post.setCountComment(this.commentRepository.countCommentsByPostId(post.getId()));
+            post.setCountReaction(this.reactionRepository.countReactionsByPostId(post.getId()));
+        }
+        return posts;
     }
 
     @Override
-    public List<Post> getUserPosts(int id) {
+    public List<Post> getUserPosts(int id,boolean isAuthenticated) {
         Session session = this.factory.getObject().getCurrentSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         CriteriaQuery<Post> criteria = builder.createQuery(Post.class);
         Root<Post> root = criteria.from(Post.class);
-        criteria.select(root)
+        if (isAuthenticated){
+            criteria.select(root)
                 .where(builder.and(
                         builder.equal(root.get("userId"), id),
                         builder.notEqual(root.get("status"), "DEL")
                 ));
+        } else {
+            criteria.select(root)
+                .where(builder.and(
+                        builder.equal(root.get("userId"), id),
+                        builder.notEqual(root.get("status"), "DEL"),
+                        builder.notEqual(root.get("status"), "HIDD")));
+        }
         List<Post> posts = session.createQuery(criteria).getResultList();
         for (Post post : posts) {
             post.setCountComment(this.commentRepository.countCommentsByPostId(post.getId()));
@@ -79,13 +92,13 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public boolean update(Post post) {
+    public Post update(Post post) {
         Session s = this.factory.getObject().getCurrentSession();
         try {
             s.update(post);
-            return true;
+            return post;
         } catch (HibernateException ex) {
-            return false;
+            return null;
         }
     }
 

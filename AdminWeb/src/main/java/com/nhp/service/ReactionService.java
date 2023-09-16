@@ -5,6 +5,7 @@
 package com.nhp.service;
 
 import com.nhp.dto.ReactionDTO;
+import org.springframework.http.ResponseEntity;
 
 /**
  *
@@ -13,5 +14,5 @@ import com.nhp.dto.ReactionDTO;
 public interface ReactionService {
     long countReactionsByPostId(int postId);
     long countReactionsByCommentId(int commentId);
-    boolean addOrUpdateOrDelete(ReactionDTO reactionDTO);
+    ResponseEntity addOrUpdateOrDelete(ReactionDTO reactionDTO);
 }

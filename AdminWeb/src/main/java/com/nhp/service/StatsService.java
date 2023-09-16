@@ -4,6 +4,9 @@
  */
 package com.nhp.service;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @author ad
@@ -13,4 +16,6 @@ public interface StatsService {
     long countUsers();
     long countUsersThisMonth();
     long countPostsThisYear();
+    List<Object[]> countUsers(Map<String, String> params);
+    List<Object[]> countPosts(Map<String, String> params);
 }

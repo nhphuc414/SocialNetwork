@@ -13,8 +13,8 @@ import java.util.List;
  */
 public interface PostRepository {
     List<Post> getPublicPosts();
-    List<Post> getUserPosts(int id);
+    List<Post> getUserPosts(int id,boolean isAuthenticated);
     Post getPostById(int id);
     Post add(Post post);
-    boolean update(Post post);
+    Post update(Post post);
 }

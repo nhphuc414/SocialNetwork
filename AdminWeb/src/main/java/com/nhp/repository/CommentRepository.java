@@ -16,6 +16,6 @@ public interface CommentRepository {
     Comment getCommentById(int id);
     long countCommentsByPostId(int postId);
     Comment add(Comment comment);
-    boolean update(Comment comment);
+    Comment update(Comment comment);
     
 }
